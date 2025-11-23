@@ -1,0 +1,6 @@
+# Production requirements
+-r requirements.txt
+
+# Development requirements
+Flask-Migrate==4.0.7
+python-dotenv==1.0.1
