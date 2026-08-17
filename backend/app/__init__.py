@@ -13,20 +13,29 @@ jwt = JWTManager()
 
 def create_app():
     app = Flask(__name__)
-    
+
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ecommerce.db')
+
+    # Fix postgres:// → postgresql:// (required by SQLAlchemy)
+    database_url = os.environ.get('DATABASE_URL', 'sqlite:///ecommerce.db')
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-string-change-in-production')
-    
+
     # Initialize extensions with app
     db.init_app(app)
     migrate.init_app(app, db)
-    # CORS configuration
+
+    # CORS: read allowed origins from env var (comma-separated list)
+    raw_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000')
+    allowed_origins = [o.strip() for o in raw_origins.split(',')]
     cors.init_app(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:5173", "http://localhost:3000"],
+            "origins": allowed_origins,
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "supports_credentials": True

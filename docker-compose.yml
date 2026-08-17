@@ -3,21 +3,20 @@ version: '3.8'
 services:
   backend:
     build: ./backend
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
     environment:
       - FLASK_ENV=production
-      - DATABASE_URL=sqlite:///ecommerce.db
-    volumes:
-      - backend_data:/app/data
-    command: gunicorn --bind 0.0.0.0:5000 run:app
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     ports:
-      - "3000:80"
+      - "80:80"
     depends_on:
       - backend
-
-volumes:
-  backend_data:
+    restart: unless-stopped

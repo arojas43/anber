@@ -53,7 +53,7 @@ const SettingsHomePage: React.FC = () => {
     const fetchSettings = async () => {
         try {
             // Fetch carousel
-            const carouselRes = await fetch('http://localhost:5000/api/admin/settings/home_carousel', {
+            const carouselRes = await fetch('/api/admin/settings/home_carousel', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (carouselRes.ok) {
@@ -62,7 +62,7 @@ const SettingsHomePage: React.FC = () => {
             }
 
             // Fetch about
-            const aboutRes = await fetch('http://localhost:5000/api/admin/settings/home_about', {
+            const aboutRes = await fetch('/api/admin/settings/home_about', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (aboutRes.ok) {
@@ -71,7 +71,7 @@ const SettingsHomePage: React.FC = () => {
             }
 
             // Fetch testimonials
-            const testimonialsRes = await fetch('http://localhost:5000/api/admin/settings/home_testimonials', {
+            const testimonialsRes = await fetch('/api/admin/settings/home_testimonials', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (testimonialsRes.ok) {
@@ -88,7 +88,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/carousel/upload-image', {
+            const response = await fetch('/api/admin/settings/carousel/upload-image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -113,7 +113,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/about/upload-image', {
+            const response = await fetch('/api/admin/settings/about/upload-image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -138,7 +138,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/testimonials/upload-image', {
+            const response = await fetch('/api/admin/settings/testimonials/upload-image', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -192,7 +192,7 @@ const SettingsHomePage: React.FC = () => {
     const saveCarousel = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/home_carousel', {
+            const response = await fetch('/api/admin/settings/home_carousel', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ const SettingsHomePage: React.FC = () => {
     const saveAbout = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/home_about', {
+            const response = await fetch('/api/admin/settings/home_about', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -240,7 +240,7 @@ const SettingsHomePage: React.FC = () => {
     const saveTestimonials = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/admin/settings/home_testimonials', {
+            const response = await fetch('/api/admin/settings/home_testimonials', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

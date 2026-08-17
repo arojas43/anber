@@ -38,7 +38,7 @@ const ProductsPage: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/products', {
+      const response = await fetch('/api/admin/products', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,7 +64,7 @@ const ProductsPage: React.FC = () => {
     if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/products/${productId}`, {
+      const response = await fetch(`/api/admin/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

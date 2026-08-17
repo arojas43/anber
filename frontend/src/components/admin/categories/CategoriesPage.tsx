@@ -28,7 +28,7 @@ const CategoriesPage: React.FC = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:5000/api/admin/categories', {
+            const response = await fetch('/api/admin/categories', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -65,7 +65,7 @@ const CategoriesPage: React.FC = () => {
         if (!window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/categories/${id}`, {
+            const response = await fetch(`/api/admin/categories/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -87,8 +87,8 @@ const CategoriesPage: React.FC = () => {
     const handleSubmit = async (data: any) => {
         try {
             const url = editingCategory
-                ? `http://localhost:5000/api/admin/categories/${editingCategory.id}`
-                : 'http://localhost:5000/api/admin/categories';
+                ? `/api/admin/categories/${editingCategory.id}`
+                : '/api/admin/categories';
 
             const method = editingCategory ? 'PUT' : 'POST';
 

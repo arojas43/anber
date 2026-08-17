@@ -50,7 +50,7 @@ const ProductForm: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/categories', {
+        const response = await fetch('/api/admin/categories', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -72,7 +72,7 @@ const ProductForm: React.FC = () => {
       // Fetch product data for editing
       const fetchProduct = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/admin/products`, {
+          const response = await fetch(`/api/admin/products`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -174,8 +174,8 @@ const ProductForm: React.FC = () => {
       };
 
       const url = id
-        ? `http://localhost:5000/api/admin/products/${id}`
-        : 'http://localhost:5000/api/admin/products';
+        ? `/api/admin/products/${id}`
+        : '/api/admin/products';
 
       const method = id ? 'PUT' : 'POST';
 
@@ -202,7 +202,7 @@ const ProductForm: React.FC = () => {
             }
           });
 
-          const uploadResponse = await fetch(`http://localhost:5000/api/admin/products/${productId}/upload-images`, {
+          const uploadResponse = await fetch(`/api/admin/products/${productId}/upload-images`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`

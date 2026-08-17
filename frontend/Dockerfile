@@ -1,20 +1,24 @@
 # Dockerfile for frontend
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 COPY package.json .
 COPY package-lock.json .
-RUN npm ci --only=production
+RUN npm ci
 
 COPY . .
 
 RUN npm run build
 
 FROM nginx:alpine
-COPY --from=0 /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+
+RUN apk add --no-cache gettext
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf.template
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# envsubst replaces ${BACKEND_URL} at runtime; other nginx $ vars are left untouched
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]

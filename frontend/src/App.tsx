@@ -22,6 +22,7 @@ import CategoriesPage from './components/admin/categories/CategoriesPage';
 import OrdersPage from './components/admin/orders/OrdersPage';
 import SettingsPage from './components/admin/SettingsPage';
 import SettingsHomePage from './components/admin/settings/SettingsHomePage';
+import { PaymentSuccess, PaymentFailure, PaymentPending } from './pages/PaymentResult';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, adminOnly?: boolean }> = ({ children, adminOnly = false }) => {
   const { user, token } = useAuth();
@@ -52,6 +53,9 @@ const AnimatedRoutes: React.FC = () => {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/order-history" element={<OrderHistory />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/checkout/success" element={<PaymentSuccess />} />
+      <Route path="/checkout/failure" element={<PaymentFailure />} />
+      <Route path="/checkout/pending" element={<PaymentPending />} />
 
       {/* Admin Routes */}
       <Route
@@ -81,17 +85,30 @@ const AnimatedRoutes: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
   return (
-    <Router>
-      <ToastProvider>
-        <div className="flex flex-col min-h-screen bg-neutral-50">
+    <ToastProvider>
+      {isAdmin ? (
+        <AnimatedRoutes />
+      ) : (
+        <div className="flex flex-col min-h-screen bg-white">
           <NewNavigation />
           <main className="flex-grow pt-20">
             <AnimatedRoutes />
           </main>
           <Footer />
         </div>
-      </ToastProvider>
+      )}
+    </ToastProvider>
+  );
+};
+
+const AppWrapper: React.FC = () => {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 };
@@ -100,7 +117,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <CartProvider>
-        <AppContent />
+        <AppWrapper />
       </CartProvider>
     </AuthProvider>
   );

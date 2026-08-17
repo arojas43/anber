@@ -11,17 +11,17 @@ def get_products():
     per_page = request.args.get('per_page', 12, type=int)
     category_id = request.args.get('category_id', type=int)
     search = request.args.get('search', '')
-    featured = request.args.get('featured', type=bool)
-    
+    featured = request.args.get('featured', '').lower() in ('1', 'true', 'yes')
+
     # Build query
     query = Product.query.filter_by(is_active=True)
-    
+
     if category_id:
         query = query.filter_by(category_id=category_id)
-    
+
     if search:
         query = query.filter(Product.name.contains(search) | Product.description.contains(search))
-    
+
     if featured:
         query = query.filter_by(is_featured=True)
     
@@ -41,7 +41,9 @@ def get_products():
             'stock_quantity': p.stock_quantity,
             'is_featured': p.is_featured,
             'category_id': p.category_id,
+            'category_name': p.category.name if p.category else None,
             'image_url': p.image_url,
+            'images': p.images or ([p.image_url] if p.image_url else []),
             'created_at': p.created_at.isoformat() if p.created_at else None
         } for p in products.items],
         'pagination': {

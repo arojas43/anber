@@ -77,23 +77,29 @@ En el panel de Seenode, configura:
 **Volumen 1 - Base de Datos:**
 ```
 Nombre: ecommerce-db
-Path: /app/backend/instance
+Path: /app/instance
 ```
 
 **Volumen 2 - Uploads:**
 ```
 Nombre: ecommerce-uploads
-Path: /app/backend/static/uploads
+Path: /app/static/uploads
 ```
 
 ### Paso 2: Variables de Entorno
 
+**Backend:**
 ```env
 SECRET_KEY=<genera-clave-segura-aqui>
 JWT_SECRET_KEY=<genera-otra-clave-segura>
-DATABASE_URL=sqlite:///instance/ecommerce.db
-PORT=5000
+DATABASE_URL=sqlite:///ecommerce.db
+CORS_ORIGINS=https://<tu-frontend>.seenode.com
 FLASK_ENV=production
+```
+
+**Frontend:**
+```env
+BACKEND_URL=https://<tu-backend>.seenode.com
 ```
 
 ### Paso 3: Build Commands

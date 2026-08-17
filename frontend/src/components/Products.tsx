@@ -1,271 +1,195 @@
-// src/components/Products.tsx
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ShoppingBag, Heart, Sparkles, Star } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ProductCard } from '@/components/ProductCard';
+
+interface Category {
+  id: number;
+  name: string;
+  image_url?: string;
+}
 
 interface Product {
   id: number;
   name: string;
   price: number;
+  compare_price?: number;
   description: string;
-  category: string;
+  category_id: number;
+  category_name?: string;
   image_url: string;
-  is_new?: boolean;
+  images?: string[];
+  is_featured?: boolean;
 }
+
+const ICONS: Record<string, string> = {
+  'Brasieres': '👙',
+  'Conjuntos Íntimos': '💕',
+  'Lencería Especial': '✨',
+  'Pijamas & Loungewear': '🌙',
+  'Ropa Interior': '🎀',
+};
 
 const ProductsComponent: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [searchParams] = useSearchParams();
 
   const { addItem } = useCart();
   const { addToast } = useToast();
 
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
+    const catParam = searchParams.get('category_id');
+    if (catParam) setSelectedCategoryId(Number(catParam));
+  }, [searchParams]);
 
-    const fetchProducts = async () => {
+  useEffect(() => {
+    const load = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/products');
-        if (response.ok) {
-          const data = await response.json();
-          setProducts(data.products);
-        } else {
-          addToast('Error al cargar productos', 'error');
+        const [prodRes, catRes] = await Promise.all([
+          fetch('/api/products/?per_page=100'),
+          fetch('/api/products/categories'),
+        ]);
+        if (prodRes.ok) {
+          const data = await prodRes.json();
+          setProducts(data.products || []);
         }
-      } catch (error) {
-        addToast('Error de conexión', 'error');
+        if (catRes.ok) {
+          const data = await catRes.json();
+          setCategories(data || []);
+        }
+      } catch {
+        addToast('Error al cargar productos', 'error');
       } finally {
         setLoading(false);
       }
     };
+    load();
+  }, []);
 
-    fetchProducts();
-  }, [searchParams]);
-
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const filtered = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCat = selectedCategoryId === null || p.category_id === selectedCategoryId;
+    return matchesSearch && matchesCat;
   });
 
   const handleAddToCart = (product: Product) => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: 1,
-      image_url: product.image_url
-    });
-    addToast(`Agregado al carrito: ${product.name}`, 'success');
+    addItem({ id: product.id, name: product.name, price: product.price, quantity: 1, image_url: product.image_url });
+    addToast(`${product.name} agregado al carrito`, 'success');
   };
-
-  const handleWishlist = (productName: string) => {
-    addToast(`Agregado a favoritos: ${productName}`, 'info');
-  };
-
-  const categories = [
-    { id: 'all', name: 'Todo', icon: '✨' },
-    { id: 'lenceria', name: 'Lencería', icon: '💕' },
-    { id: 'brasieres', name: 'Brasieres', icon: '👗' },
-    { id: 'panties', name: 'Panties', icon: '🎀' },
-    { id: 'pijamas', name: 'Pijamas', icon: '🌙' }
-  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-12 relative overflow-hidden">
-      {/* Animated Background Blobs */}
-      <div className="absolute top-20 right-10 w-96 h-96 bg-primary-200 rounded-full blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute bottom-20 left-10 w-96 h-96 bg-secondary-200 rounded-full blur-3xl opacity-30 animate-blob" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-300 rounded-full blur-3xl opacity-20 animate-blob" style={{ animationDelay: '4s' }}></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div className="min-h-screen bg-neutral-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-500 mb-4 font-serif">
-            Nuestra Colección
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
+          <p className="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Anber Lencería</p>
+          <h1 className="text-5xl md:text-6xl font-bold font-serif text-neutral-900 mb-4">
+            Nuestra <span className="italic text-primary-500">Colección</span>
           </h1>
-          <p className="text-xl text-neutral-600 max-w-2xl mx-auto">
-            Descubre piezas únicas diseñadas para realzar tu belleza natural ✨
+          <p className="text-lg text-neutral-500 max-w-xl mx-auto">
+            Piezas únicas diseñadas para realzar tu belleza natural
           </p>
         </motion.div>
 
-        {/* Search & Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-12"
-        >
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-400 group-focus-within:text-primary-600 transition-colors" />
-              <Input
-                placeholder="Buscar productos mágicos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-14 bg-white/80 backdrop-blur-sm border-2 border-primary-200 rounded-full text-lg focus:border-primary-400 focus:ring-4 focus:ring-primary-100 shadow-lg shadow-primary-200/50"
-              />
-              <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary-300" />
-            </div>
-          </div>
-
-          {/* Category Pills */}
-          <div className="flex flex-wrap justify-center gap-3">
-            {categories.map((cat, idx) => (
-              <motion.button
-                key={cat.id}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 + idx * 0.05 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-6 py-3 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === cat.id
-                  ? 'bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-400/50 scale-105'
-                  : 'bg-white/90 backdrop-blur-sm text-primary-700 hover:bg-primary-50 border-2 border-primary-200 shadow-md hover:shadow-lg'
-                  }`}
-              >
-                <span className="mr-2">{cat.icon}</span>
-                {cat.name}
-              </motion.button>
-            ))}
+        {/* Search */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="max-w-2xl mx-auto mb-8">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+            <Input
+              placeholder="Buscar productos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-13 bg-white border-neutral-200 rounded-full text-base shadow-sm focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+            />
+            {searchTerm && (
+              <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm">
+                ✕
+              </button>
+            )}
           </div>
         </motion.div>
 
-        {/* Product Grid */}
+        {/* Category Pills */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-wrap justify-center gap-2 mb-12">
+          <button
+            onClick={() => setSelectedCategoryId(null)}
+            className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${selectedCategoryId === null
+              ? 'bg-neutral-900 text-white shadow-md'
+              : 'bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400'}`}
+          >
+            <span className="mr-1.5">✨</span> Todo
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${selectedCategoryId === cat.id
+                ? 'bg-primary-500 text-white shadow-md shadow-primary-500/25'
+                : 'bg-white border border-neutral-200 text-neutral-600 hover:border-primary-300 hover:text-primary-600'}`}
+            >
+              <span className="mr-1.5">{ICONS[cat.name] || '🛍️'}</span>
+              {cat.name}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Results count */}
+        {!loading && (
+          <p className="text-sm text-neutral-400 mb-6 text-center">
+            {filtered.length} {filtered.length === 1 ? 'producto' : 'productos'} encontrados
+          </p>
+        )}
+
+        {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white/80 rounded-3xl h-[500px] animate-pulse backdrop-blur-sm"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-2xl bg-neutral-200 animate-pulse aspect-[3/4]" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence>
-              {filteredProducts.map((product, idx) => (
-                <motion.div
-                  key={product.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="group relative bg-gradient-to-br from-white to-primary-50/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-primary-100"
-                >
-                  {/* Image */}
-                  <div className="relative h-80 overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
-                    <Link to={`/products/${product.id}`}>
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                    </Link>
-
-                    {/* Badge */}
-                    {product.is_new && (
-                      <motion.span
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-4 left-4 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow-lg"
-                      >
-                        ✨ Nuevo
-                      </motion.span>
-                    )}
-
-                    {/* Quick Actions */}
-                    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleWishlist(product.name)}
-                        className="h-12 w-12 rounded-full bg-white/90 backdrop-blur-sm text-primary-600 flex items-center justify-center hover:bg-primary-50 transition-colors shadow-lg border-2 border-primary-200"
-                      >
-                        <Heart className="h-5 w-5" />
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-6">
-                    <div className="mb-2">
-                      <span className="text-xs text-primary-500 uppercase tracking-wider font-bold">{product.category}</span>
-                    </div>
-
-                    <Link to={`/products/${product.id}`}>
-                      <h3 className="text-xl font-bold text-neutral-800 group-hover:text-primary-600 transition-colors mb-2">
-                        {product.name}
-                      </h3>
-                    </Link>
-
-                    <div className="flex items-center gap-1 mb-3">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                      <span className="text-sm text-neutral-500 ml-2">(4.8)</span>
-                    </div>
-
-                    <p className="text-neutral-600 text-sm mb-4 line-clamp-2">
-                      {product.description}
-                    </p>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-500">
-                          ${product.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <Button
-                        onClick={() => handleAddToCart(product)}
-                        className="bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white rounded-full px-6 py-3 shadow-lg shadow-primary-400/50 hover:shadow-xl hover:shadow-primary-500/50 transition-all duration-300"
-                      >
-                        <ShoppingBag className="h-4 w-4 mr-2" />
-                        Agregar
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Decorative Corner */}
-                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-tl-[100px]"></div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {filteredProducts.length === 0 && !loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-24"
-          >
-            <div className="text-6xl mb-4">🔍</div>
-            <p className="text-neutral-600 text-xl mb-4">No encontramos productos con esos criterios</p>
-            <Button
-              onClick={() => { setSearchTerm(''); setSelectedCategory('all'); }}
-              className="bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-full px-8"
-            >
-              Ver todos los productos
-            </Button>
-          </motion.div>
+          <AnimatePresence mode="popLayout">
+            {filtered.length > 0 ? (
+              <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
+                {filtered.map((product, idx) => (
+                  <motion.div
+                    key={product.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.4) }}
+                  >
+                    <ProductCard
+                      {...product}
+                      category={product.category_name}
+                      onAddToCart={() => handleAddToCart(product)}
+                      onAddToWishlist={() => addToast(`${product.name} agregado a favoritos`, 'info')}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+                <Sparkles className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
+                <p className="text-neutral-500 text-lg mb-6">No encontramos productos con esos criterios</p>
+                <Button onClick={() => { setSearchTerm(''); setSelectedCategoryId(null); }} className="rounded-full bg-primary-500 hover:bg-primary-600 text-white px-8">
+                  Ver todos los productos
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </div>
     </div>
