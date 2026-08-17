@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { motion, useInView } from 'framer-motion';
 import { Sparkles, ShieldCheck, Truck, RefreshCw, ArrowRight, Star, Quote } from 'lucide-react';
 import Carousel from './Carousel';
+import { BACKEND_URL } from '@/config';
 
 const FALLBACK_SLIDES = [
     {
@@ -71,10 +72,10 @@ const NewHome: React.FC = () => {
         const fetchData = async () => {
             try {
                 const [productsRes, carouselRes, aboutRes, testimonialsRes] = await Promise.allSettled([
-                    fetch('/api/products?featured=true'),
-                    fetch('/api/settings/home_carousel'),
-                    fetch('/api/settings/home_about'),
-                    fetch('/api/settings/home_testimonials'),
+                    fetch(`${BACKEND_URL}/api/products?featured=true`),
+                    fetch(`${BACKEND_URL}/api/settings/home_carousel`),
+                    fetch(`${BACKEND_URL}/api/settings/home_about`),
+                    fetch(`${BACKEND_URL}/api/settings/home_testimonials`),
                 ]);
 
                 if (productsRes.status === 'fulfilled' && productsRes.value.ok) {

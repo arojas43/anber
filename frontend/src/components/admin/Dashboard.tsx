@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { DollarSign, Package, ShoppingBag, Users, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BACKEND_URL } from '@/config';
 
 const statusStyles: Record<string, string> = {
     pending: 'bg-amber-100 text-amber-700',
@@ -27,7 +28,7 @@ const Dashboard: React.FC = () => {
     React.useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch('/api/admin/stats', {
+                const response = await fetch(`${BACKEND_URL}/api/admin/stats`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {

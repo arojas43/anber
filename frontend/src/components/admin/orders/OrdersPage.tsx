@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Search } from 'lucide-react';
+import { BACKEND_URL } from '@/config';
 
 interface Order {
     id: number;
@@ -37,7 +38,7 @@ const OrdersPage: React.FC = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await fetch('/api/products/orders', {
+                const response = await fetch(`${BACKEND_URL}/api/products/orders`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {
@@ -57,7 +58,7 @@ const OrdersPage: React.FC = () => {
 
     const updateOrderStatus = async (orderId: number, newStatus: string) => {
         try {
-            const response = await fetch(`/api/admin/orders/${orderId}`, {
+            const response = await fetch(`${BACKEND_URL}/api/admin/orders/${orderId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

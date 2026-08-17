@@ -7,6 +7,7 @@ import { Search, Sparkles } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductCard } from '@/components/ProductCard';
+import { BACKEND_URL } from '@/config';
 
 interface Category {
   id: number;
@@ -56,8 +57,8 @@ const ProductsComponent: React.FC = () => {
       try {
         setLoading(true);
         const [prodRes, catRes] = await Promise.all([
-          fetch('/api/products/?per_page=100'),
-          fetch('/api/products/categories'),
+          fetch(`${BACKEND_URL}/api/products/?per_page=100`),
+          fetch(`${BACKEND_URL}/api/products/categories`),
         ]);
         if (prodRes.ok) {
           const data = await prodRes.json();

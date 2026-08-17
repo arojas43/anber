@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Save, Upload, Plus, Trash2 } from 'lucide-react';
+import { BACKEND_URL } from '@/config';
 
 interface CarouselSlide {
     id: number;
@@ -53,7 +54,7 @@ const SettingsHomePage: React.FC = () => {
     const fetchSettings = async () => {
         try {
             // Fetch carousel
-            const carouselRes = await fetch('/api/admin/settings/home_carousel', {
+            const carouselRes = await fetch(`${BACKEND_URL}/api/admin/settings/home_carousel`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (carouselRes.ok) {
@@ -62,7 +63,7 @@ const SettingsHomePage: React.FC = () => {
             }
 
             // Fetch about
-            const aboutRes = await fetch('/api/admin/settings/home_about', {
+            const aboutRes = await fetch(`${BACKEND_URL}/api/admin/settings/home_about`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (aboutRes.ok) {
@@ -71,7 +72,7 @@ const SettingsHomePage: React.FC = () => {
             }
 
             // Fetch testimonials
-            const testimonialsRes = await fetch('/api/admin/settings/home_testimonials', {
+            const testimonialsRes = await fetch(`${BACKEND_URL}/api/admin/settings/home_testimonials`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (testimonialsRes.ok) {
@@ -88,7 +89,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('/api/admin/settings/carousel/upload-image', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/carousel/upload-image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -113,7 +114,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('/api/admin/settings/about/upload-image', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/about/upload-image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -138,7 +139,7 @@ const SettingsHomePage: React.FC = () => {
         formData.append('image', file);
 
         try {
-            const response = await fetch('/api/admin/settings/testimonials/upload-image', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/testimonials/upload-image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -192,7 +193,7 @@ const SettingsHomePage: React.FC = () => {
     const saveCarousel = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/admin/settings/home_carousel', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/home_carousel`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -216,7 +217,7 @@ const SettingsHomePage: React.FC = () => {
     const saveAbout = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/admin/settings/home_about', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/home_about`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -240,7 +241,7 @@ const SettingsHomePage: React.FC = () => {
     const saveTestimonials = async () => {
         setLoading(true);
         try {
-            const response = await fetch('/api/admin/settings/home_testimonials', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/settings/home_testimonials`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

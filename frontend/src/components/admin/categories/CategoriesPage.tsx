@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import CategoryForm from './CategoryForm';
+import { BACKEND_URL } from '@/config';
 
 interface Category {
     id: number;
@@ -28,7 +29,7 @@ const CategoriesPage: React.FC = () => {
     const fetchCategories = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/admin/categories', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/categories`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -65,7 +66,7 @@ const CategoriesPage: React.FC = () => {
         if (!window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) return;
 
         try {
-            const response = await fetch(`/api/admin/categories/${id}`, {
+            const response = await fetch(`${BACKEND_URL}/api/admin/categories/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

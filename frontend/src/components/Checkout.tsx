@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Truck, ShieldCheck, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BACKEND_URL } from '@/config';
 
 // MercadoPago logo inline SVG
 const MercadoPagoLogo = () => (
@@ -66,7 +67,7 @@ const Checkout: React.FC = () => {
         try {
             const shippingAddress = `${formData.address}, ${formData.city} CP ${formData.postalCode}`;
 
-            const response = await fetch('/api/payments/create-preference', {
+            const response = await fetch(`${BACKEND_URL}/api/payments/create-preference`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import { Star, Heart, ShoppingBag, Truck, Shield, ArrowLeft, Check, AlertCircle 
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
+import { BACKEND_URL } from '@/config';
 
 interface ProductVariant {
     id: number;
@@ -47,7 +48,7 @@ const ProductDetail: React.FC = () => {
         const fetchProduct = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/products/${id}`);
+                const response = await fetch(`${BACKEND_URL}/api/products/${id}`);
 
                 if (!response.ok) {
                     throw new Error('Producto no encontrado');

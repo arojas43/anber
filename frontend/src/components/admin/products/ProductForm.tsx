@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Trash2, ArrowLeft, Upload, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { BACKEND_URL } from '@/config';
 
 interface Variant {
   name: string;
@@ -50,7 +51,7 @@ const ProductForm: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/admin/categories', {
+        const response = await fetch(`${BACKEND_URL}/api/admin/categories`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -72,7 +73,7 @@ const ProductForm: React.FC = () => {
       // Fetch product data for editing
       const fetchProduct = async () => {
         try {
-          const response = await fetch(`/api/admin/products`, {
+          const response = await fetch(`${BACKEND_URL}/api/admin/products`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -202,7 +203,7 @@ const ProductForm: React.FC = () => {
             }
           });
 
-          const uploadResponse = await fetch(`/api/admin/products/${productId}/upload-images`, {
+          const uploadResponse = await fetch(`${BACKEND_URL}/api/admin/products/${productId}/upload-images`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`

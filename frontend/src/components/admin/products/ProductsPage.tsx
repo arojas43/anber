@@ -15,6 +15,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { BACKEND_URL } from '@/config';
 
 interface Product {
   id: number;
@@ -38,7 +39,7 @@ const ProductsPage: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/admin/products', {
+      const response = await fetch(`${BACKEND_URL}/api/admin/products`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,7 +65,7 @@ const ProductsPage: React.FC = () => {
     if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
 
     try {
-      const response = await fetch(`/api/admin/products/${productId}`, {
+      const response = await fetch(`${BACKEND_URL}/api/admin/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
