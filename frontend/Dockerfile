@@ -1,5 +1,4 @@
-# Dockerfile for frontend
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -7,18 +6,17 @@ COPY package.json .
 COPY package-lock.json .
 RUN npm ci
 
-COPY . .
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
 
-RUN npm run build
+COPY . .
+RUN npx vite build
 
 FROM nginx:alpine
 
-RUN apk add --no-cache gettext
-
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
-# envsubst replaces ${BACKEND_URL} at runtime; other nginx $ vars are left untouched
-CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]
