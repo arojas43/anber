@@ -407,7 +407,7 @@ def upload_carousel_image():
         return jsonify({'error': 'File too large (max 5MB)'}), 400
     
     # Create carousel directory
-    carousel_dir = os.path.join(UPLOAD_FOLDER, 'carousel')
+    carousel_dir = os.path.join(UPLOADS_BASE, 'carousel')
     os.makedirs(carousel_dir, exist_ok=True)
     
     # Generate unique filename
@@ -470,7 +470,7 @@ def upload_about_image():
         return jsonify({'error': 'File too large (max 5MB)'}), 400
     
     # Create about directory
-    about_dir = os.path.join(UPLOAD_FOLDER, 'about')
+    about_dir = os.path.join(UPLOADS_BASE, 'about')
     os.makedirs(about_dir, exist_ok=True)
     
     # Generate unique filename
@@ -533,7 +533,7 @@ def upload_testimonial_image():
         return jsonify({'error': 'File too large (max 5MB)'}), 400
     
     # Create testimonials directory
-    testimonials_dir = os.path.join(UPLOAD_FOLDER, 'testimonials')
+    testimonials_dir = os.path.join(UPLOADS_BASE, 'testimonials')
     os.makedirs(testimonials_dir, exist_ok=True)
     
     # Generate unique filename
