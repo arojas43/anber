@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Star, Heart, ShoppingBag, Truck, Shield, ArrowLeft, Check, AlertCircle } from 'lucide-react';
+import { Heart, ShoppingBag, Truck, Shield, Check, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
@@ -56,14 +56,15 @@ const ProductDetail: React.FC = () => {
 
                 const data = await response.json();
 
-                // Transform API data to component state
-                // Note: The API currently returns a single image_url. 
-                // We'll use it for the images array for now, but ideally the API should return multiple images.
+                // Build images array from unique images only
+                const rawImages: string[] = data.images?.length > 0 ? data.images : [];
+                const uniqueImages = [...new Set([data.image_url, ...rawImages].filter(Boolean))] as string[];
+
                 const transformedProduct: Product = {
                     ...data,
-                    rating: 4.9, // Mock rating for now
-                    reviews: 127, // Mock reviews for now
-                    images: [data.image_url, data.image_url, data.image_url], // Mock multiple images using the main one
+                    rating: 0,
+                    reviews: 0,
+                    images: uniqueImages,
                     features: [
                         'Material premium de alta calidad',
                         'Diseño exclusivo',
@@ -74,8 +75,8 @@ const ProductDetail: React.FC = () => {
                 };
 
                 setProduct(transformedProduct);
+                document.title = `${data.name} | Anber Lencería`;
 
-                // Set default size if variants exist
                 if (data.variants && data.variants.length > 0) {
                     setSelectedSize(data.variants[0].name);
                 }
@@ -89,6 +90,10 @@ const ProductDetail: React.FC = () => {
         if (id) {
             fetchProduct();
         }
+
+        return () => {
+            document.title = 'Anber — Lencería Premium | Tienda Online México';
+        };
     }, [id]);
 
     const handleAddToCart = () => {
@@ -133,20 +138,24 @@ const ProductDetail: React.FC = () => {
         <div className="bg-neutral-50 min-h-screen py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Breadcrumb */}
-                <div className="mb-8">
-                    <Link to="/products" className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Volver a Productos
-                    </Link>
-                </div>
+                <nav aria-label="Ruta de navegación" className="mb-8">
+                    <ol className="flex items-center gap-2 text-sm text-neutral-400">
+                        <li><Link to="/" className="hover:text-primary-600 transition-colors">Inicio</Link></li>
+                        <li aria-hidden="true">/</li>
+                        <li><Link to="/products" className="hover:text-primary-600 transition-colors">Productos</Link></li>
+                        <li aria-hidden="true">/</li>
+                        <li className="text-neutral-700 font-medium truncate max-w-[200px]">{product.name}</li>
+                    </ol>
+                </nav>
 
                 <div className="grid md:grid-cols-2 gap-12">
                     {/* Images */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-lg"
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-neutral-100"
                         >
                             <img
                                 src={product.images[currentImage]}
@@ -154,38 +163,42 @@ const ProductDetail: React.FC = () => {
                                 className="w-full h-full object-cover"
                             />
                             {!inStock && (
-                                <div className="absolute inset-0 bg-primary-900/50 flex items-center justify-center">
-                                    <span className="text-white text-2xl font-bold">Agotado</span>
+                                <div className="absolute inset-0 bg-neutral-900/60 flex items-center justify-center">
+                                    <span className="text-white text-xl font-bold tracking-wide">Agotado</span>
                                 </div>
                             )}
                         </motion.div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            {product.images.map((img, idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => setCurrentImage(idx)}
-                                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${currentImage === idx ? 'border-primary-600 shadow-md' : 'border-neutral-200 hover:border-primary-300'
+                        {product.images.length > 1 && (
+                            <div className="grid grid-cols-4 gap-2">
+                                {product.images.map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentImage(idx)}
+                                        aria-label={`Ver imagen ${idx + 1}`}
+                                        aria-pressed={currentImage === idx}
+                                        className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                                            currentImage === idx
+                                                ? 'border-primary-500 shadow-sm'
+                                                : 'border-neutral-200 hover:border-primary-300'
                                         }`}
-                                >
-                                    <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
-                                </button>
-                            ))}
-                        </div>
+                                    >
+                                        <img src={img} alt="" className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Product Info */}
                     <div className="space-y-6">
                         <div>
                             <h1 className="text-4xl font-bold text-neutral-900 font-serif mb-2">{product.name}</h1>
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-1">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className={`h-5 w-5 ${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-neutral-300'}`} />
-                                    ))}
-                                </div>
-                                <span className="text-neutral-600">({product.reviews} reseñas)</span>
-                            </div>
+                            {product.category_name && (
+                                <span className="text-xs font-semibold text-primary-400 uppercase tracking-[0.12em]">
+                                    {product.category_name}
+                                </span>
+                            )}
                         </div>
 
                         <div className="flex items-baseline gap-4">
@@ -255,9 +268,10 @@ const ProductDetail: React.FC = () => {
                             </Button>
                             <Button
                                 variant="outline"
-                                className="border-2 border-primary-300 text-primary-700 hover:bg-primary-50 rounded-full px-6"
+                                aria-label="Agregar a favoritos"
+                                className="border-2 border-primary-200 text-primary-700 hover:bg-primary-50 rounded-full px-6"
                             >
-                                <Heart className="h-5 w-5" />
+                                <Heart className="h-5 w-5" aria-hidden="true" />
                             </Button>
                         </div>
 

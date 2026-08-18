@@ -1,4 +1,3 @@
-// src/components/NewNavigation.tsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,22 +14,28 @@ const NewNavigation: React.FC = () => {
     const { items } = useCart();
     const location = useLocation();
 
+    const isHome = location.pathname === '/';
+    const isTransparent = isHome && !scrolled && !isMenuOpen;
+
     useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener('scroll', handleScroll);
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Close mobile menu on route change
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [location.pathname]);
 
     const cartItemsCount = items.reduce((total, item) => total + item.quantity, 0);
 
     const productCategories = [
         { name: 'Ver Todo', path: '/products' },
-        { name: 'Lencería', path: '/products?category=lenceria' },
         { name: 'Brasieres', path: '/products?category=brasieres' },
-        { name: 'Panties', path: '/products?category=panties' },
+        { name: 'Conjuntos Íntimos', path: '/products?category=conjuntos' },
         { name: 'Pijamas', path: '/products?category=pijamas' },
+        { name: 'Lencería Especial', path: '/products?category=lenceria' },
     ];
 
     const navLinks = [
@@ -40,24 +45,29 @@ const NewNavigation: React.FC = () => {
         { name: 'Contacto', path: '/contact' },
     ];
 
+    const textColor = isTransparent
+        ? 'text-white/90 hover:text-white'
+        : 'text-neutral-700 hover:text-primary-600';
+
     return (
         <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-200/50'
-                : 'bg-transparent'
-                }`}
+            className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+                isTransparent
+                    ? 'bg-transparent'
+                    : 'bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-200/50'
+            }`}
+            aria-label="Navegación principal"
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-20 items-center">
                     {/* Logo */}
-                    <Link to="/" className="flex items-center gap-3 group">
-                        <div className="relative">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:shadow-primary-300 transition-shadow">
+                    <Link to="/" className="flex items-center gap-3 group" aria-label="Anber — Inicio">
+                        <div className="relative flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold text-xl shadow-sm group-hover:bg-primary-600 transition-colors">
                                 A
                             </div>
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 blur-md opacity-0 group-hover:opacity-50 transition-opacity"></div>
                         </div>
-                        <span className="text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-600">
+                        <span className={`text-2xl font-serif font-bold transition-colors ${isTransparent ? 'text-white' : 'text-primary-600'}`}>
                             Anber
                         </span>
                     </Link>
@@ -65,13 +75,15 @@ const NewNavigation: React.FC = () => {
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center gap-8">
                         {navLinks.map((link) => (
-                            <div key={link.path} className="relative group">
+                            <div key={link.path} className="relative">
                                 {link.hasDropdown ? (
                                     <>
                                         <button
                                             onMouseEnter={() => setProductsOpen(true)}
                                             onMouseLeave={() => setProductsOpen(false)}
-                                            className="flex items-center gap-1 text-neutral-700 hover:text-primary-600 font-medium transition-colors py-2"
+                                            aria-haspopup="true"
+                                            aria-expanded={productsOpen}
+                                            className={`flex items-center gap-1 font-medium transition-colors py-2 ${textColor}`}
                                         >
                                             {link.name}
                                             <ChevronDown className="h-4 w-4" />
@@ -79,19 +91,21 @@ const NewNavigation: React.FC = () => {
                                         <AnimatePresence>
                                             {productsOpen && (
                                                 <motion.div
-                                                    initial={{ opacity: 0, y: 10 }}
+                                                    initial={{ opacity: 0, y: 8 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    transition={{ duration: 0.2 }}
+                                                    exit={{ opacity: 0, y: 8 }}
+                                                    transition={{ duration: 0.18, ease: 'easeOut' }}
                                                     onMouseEnter={() => setProductsOpen(true)}
                                                     onMouseLeave={() => setProductsOpen(false)}
-                                                    className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-neutral-200 py-2"
+                                                    className="absolute top-full left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-neutral-100 py-2"
+                                                    role="menu"
                                                 >
                                                     {productCategories.map((category) => (
                                                         <Link
                                                             key={category.path}
                                                             to={category.path}
-                                                            className="block px-4 py-2 text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                                                            role="menuitem"
+                                                            className="block px-4 py-2.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
                                                         >
                                                             {category.name}
                                                         </Link>
@@ -103,8 +117,11 @@ const NewNavigation: React.FC = () => {
                                 ) : (
                                     <Link
                                         to={link.path}
-                                        className={`text-neutral-700 hover:text-primary-600 font-medium transition-colors ${location.pathname === link.path ? 'text-primary-600' : ''
-                                            }`}
+                                        className={`font-medium transition-colors ${textColor} ${
+                                            location.pathname === link.path
+                                                ? isTransparent ? 'text-white' : 'text-primary-600'
+                                                : ''
+                                        }`}
                                     >
                                         {link.name}
                                     </Link>
@@ -114,10 +131,21 @@ const NewNavigation: React.FC = () => {
                     </div>
 
                     {/* Right Actions */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                         {/* Cart */}
-                        <Link to="/cart">
-                            <Button variant="ghost" size="icon" className="relative text-primary-600 hover:text-primary-700 hover:bg-primary-50">
+                        <Link
+                            to="/cart"
+                            aria-label={`Carrito de compras${cartItemsCount > 0 ? `, ${cartItemsCount} artículos` : ''}`}
+                        >
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`relative transition-colors ${
+                                    isTransparent
+                                        ? 'text-white hover:bg-white/10'
+                                        : 'text-primary-600 hover:text-primary-700 hover:bg-primary-50'
+                                }`}
+                            >
                                 <ShoppingBag className="h-6 w-6" />
                                 {cartItemsCount > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm">
@@ -127,14 +155,13 @@ const NewNavigation: React.FC = () => {
                             </Button>
                         </Link>
 
-                        {/* Auth */}
+                        {/* Auth — desktop */}
                         <div className="hidden md:flex items-center gap-3">
                             {token ? (
                                 <div className="flex items-center gap-3">
-                                    <Link to="/order-history">
-                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:shadow-lg transition-shadow">
-                                            {user?.first_name?.charAt(0)}
-                                            {user?.last_name?.charAt(0)}
+                                    <Link to="/order-history" aria-label="Mi cuenta">
+                                        <div className="h-9 w-9 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:bg-primary-600 transition-colors">
+                                            {(user?.first_name?.charAt(0) || '') + (user?.last_name?.charAt(0) || '')}
                                         </div>
                                     </Link>
                                     {user?.role === 'admin' && (
@@ -147,17 +174,27 @@ const NewNavigation: React.FC = () => {
                                 </div>
                             ) : (
                                 <Link to="/login">
-                                    <Button className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-full px-6 shadow-md">
+                                    <Button className={`rounded-full px-6 shadow-sm transition-colors ${
+                                        isTransparent
+                                            ? 'bg-white text-primary-700 hover:bg-primary-50'
+                                            : 'bg-primary-500 hover:bg-primary-600 text-white'
+                                    }`}>
                                         Iniciar Sesión
                                     </Button>
                                 </Link>
                             )}
                         </div>
 
-                        {/* Mobile Menu Button */}
+                        {/* Mobile Menu Toggle */}
                         <button
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="md:hidden p-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                            aria-expanded={isMenuOpen}
+                            className={`md:hidden p-2 rounded-lg transition-colors ${
+                                isTransparent
+                                    ? 'text-white hover:bg-white/10'
+                                    : 'text-neutral-700 hover:text-primary-600 hover:bg-primary-50'
+                            }`}
                         >
                             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
@@ -172,21 +209,24 @@ const NewNavigation: React.FC = () => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white border-t border-neutral-200"
+                        transition={{ duration: 0.22, ease: 'easeOut' }}
+                        className="md:hidden bg-white border-t border-neutral-100 overflow-hidden"
                     >
-                        <div className="px-4 py-6 space-y-4">
+                        <div className="px-4 py-6 space-y-1">
                             {navLinks.map((link) => (
                                 <div key={link.path}>
                                     {link.hasDropdown ? (
-                                        <div className="space-y-2">
-                                            <p className="font-medium text-neutral-900">{link.name}</p>
-                                            <div className="pl-4 space-y-2">
+                                        <div>
+                                            <p className="px-3 py-2 text-xs font-semibold text-neutral-400 uppercase tracking-wider mt-2">
+                                                {link.name}
+                                            </p>
+                                            <div className="space-y-0.5">
                                                 {productCategories.map((category) => (
                                                     <Link
                                                         key={category.path}
                                                         to={category.path}
                                                         onClick={() => setIsMenuOpen(false)}
-                                                        className="block text-neutral-600 hover:text-primary-600"
+                                                        className="block px-3 py-2.5 rounded-lg text-neutral-600 hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm"
                                                     >
                                                         {category.name}
                                                     </Link>
@@ -197,7 +237,11 @@ const NewNavigation: React.FC = () => {
                                         <Link
                                             to={link.path}
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="block text-neutral-700 hover:text-primary-600 font-medium"
+                                            className={`block px-3 py-2.5 rounded-lg font-medium transition-colors ${
+                                                location.pathname === link.path
+                                                    ? 'bg-primary-50 text-primary-600'
+                                                    : 'text-neutral-700 hover:bg-neutral-50 hover:text-primary-600'
+                                            }`}
                                         >
                                             {link.name}
                                         </Link>
@@ -205,41 +249,40 @@ const NewNavigation: React.FC = () => {
                                 </div>
                             ))}
 
-                            {token ? (
-                                <div className="pt-4 border-t border-neutral-200">
-                                    <Link
-                                        to="/order-history"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="block text-neutral-700 hover:text-primary-600 font-medium mb-3"
-                                    >
-                                        Mi Cuenta
-                                    </Link>
-                                    {user?.role === 'admin' && (
+                            <div className="pt-4 mt-2 border-t border-neutral-100">
+                                {token ? (
+                                    <div className="space-y-0.5">
                                         <Link
-                                            to="/admin"
+                                            to="/order-history"
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="block text-neutral-700 hover:text-primary-600 font-medium mb-3"
+                                            className="block px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 font-medium transition-colors"
                                         >
-                                            Admin
+                                            Mi Cuenta
                                         </Link>
-                                    )}
-                                    <button
-                                        onClick={() => {
-                                            logout();
-                                            setIsMenuOpen(false);
-                                        }}
-                                        className="text-neutral-600 hover:text-primary-600"
-                                    >
-                                        Cerrar Sesión
-                                    </button>
-                                </div>
-                            ) : (
-                                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                                    <Button className="w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white">
-                                        Iniciar Sesión
-                                    </Button>
-                                </Link>
-                            )}
+                                        {user?.role === 'admin' && (
+                                            <Link
+                                                to="/admin"
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="block px-3 py-2.5 rounded-lg text-neutral-700 hover:bg-neutral-50 hover:text-primary-600 font-medium transition-colors"
+                                            >
+                                                Admin
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={() => { logout(); setIsMenuOpen(false); }}
+                                            className="block w-full text-left px-3 py-2.5 rounded-lg text-neutral-500 hover:bg-neutral-50 hover:text-primary-600 transition-colors"
+                                        >
+                                            Cerrar Sesión
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                                        <Button className="w-full bg-primary-500 hover:bg-primary-600 text-white rounded-xl">
+                                            Iniciar Sesión
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 )}
