@@ -288,8 +288,9 @@ def get_dashboard_stats():
         'recent_sales': recent_sales_data
     }), 200
 
-# Image upload configuration
-UPLOAD_FOLDER = 'static/uploads/products'
+# Image upload configuration — env var allows overriding to a persistent volume path
+UPLOADS_BASE = os.environ.get('UPLOADS_DIR', 'static/uploads')
+UPLOAD_FOLDER = os.path.join(UPLOADS_BASE, 'products')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
@@ -356,7 +357,7 @@ def upload_product_images(product_id):
             img.save(filepath, quality=85, optimize=True)
             
             # Generate URL
-            url = f'/static/uploads/products/{product_id}/{filename}'
+            url = f'/api/admin/uploads/products/{product_id}/{filename}'
             uploaded_urls.append(url)
             
         except Exception as e:
@@ -379,7 +380,7 @@ def upload_product_images(product_id):
 @admin_bp.route('/uploads/<path:filename>')
 def serve_upload(filename):
     """Serve uploaded files"""
-    return send_from_directory('static/uploads', filename)
+    return send_from_directory(UPLOADS_BASE, filename)
 
 # Carousel image upload
 @admin_bp.route('/settings/carousel/upload-image', methods=['POST'])
@@ -434,7 +435,7 @@ def upload_carousel_image():
         img.save(filepath, quality=85, optimize=True)
         
         # Generate URL
-        url = f'/static/uploads/carousel/{filename}'
+        url = f'/api/admin/uploads/carousel/{filename}'
         
         return jsonify({
             'message': 'Image uploaded successfully',
@@ -497,7 +498,7 @@ def upload_about_image():
         img.save(filepath, quality=85, optimize=True)
         
         # Generate URL
-        url = f'/static/uploads/about/{filename}'
+        url = f'/api/admin/uploads/about/{filename}'
         
         return jsonify({
             'message': 'Image uploaded successfully',
@@ -556,7 +557,7 @@ def upload_testimonial_image():
         img.save(filepath, quality=85, optimize=True)
         
         # Generate URL
-        url = f'/static/uploads/testimonials/{filename}'
+        url = f'/api/admin/uploads/testimonials/{filename}'
         
         return jsonify({
             'message': 'Image uploaded successfully',
