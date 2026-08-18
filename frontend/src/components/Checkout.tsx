@@ -90,7 +90,7 @@ const Checkout: React.FC = () => {
             }
 
             // Redirect to Mercado Pago checkout
-            const url = data.sandbox_init_point || data.init_point;
+            const url = data.init_point || data.sandbox_init_point;
             if (url) {
                 clearCart();
                 window.location.href = url;
