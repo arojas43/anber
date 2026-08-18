@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
-from app.models import User
+from app.models import User, UserRoles
 from app.routes import auth_bp
 from werkzeug.security import check_password_hash
 
@@ -22,7 +22,7 @@ def register():
         email=data['email'],
         first_name=data['first_name'],
         last_name=data['last_name'],
-        role=data.get('role', 'customer')  # Default to customer
+        role=UserRoles.CUSTOMER
     )
     user.set_password(data['password'])
     
