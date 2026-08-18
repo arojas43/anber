@@ -37,7 +37,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
         <div className="group relative flex flex-col">
             <Link to={`/products/${id}`} className="block relative overflow-hidden rounded-2xl bg-neutral-100">
-                {/* Images */}
                 <div className="relative aspect-[3/4] overflow-hidden">
                     <img
                         src={mainImage}
@@ -55,33 +54,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     {/* Badges */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                         {is_new && (
-                            <span className="inline-block bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                            <span className="inline-block bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 Nuevo
                             </span>
                         )}
                         {discount && (
-                            <span className="inline-block bg-neutral-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                            <span className="inline-block bg-neutral-900 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 -{discount}%
                             </span>
                         )}
                     </div>
 
-                    {/* Wishlist */}
+                    {/* Wishlist — always visible on mobile, hover-only on desktop */}
                     <motion.button
-                        whileTap={{ scale: 0.85 }}
+                        whileTap={{ scale: 0.82 }}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             onAddToWishlist();
                         }}
-                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary-500 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-neutral-500 hover:text-primary-500 transition-all duration-200 shadow-sm sm:opacity-0 sm:group-hover:opacity-100"
                         aria-label="Agregar a favoritos"
                     >
                         <Heart className="h-4 w-4" />
                     </motion.button>
 
-                    {/* Add to cart CTA */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                    {/* Add to cart — slide up on desktop hover */}
+                    <div className="hidden sm:block absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
                         <motion.button
                             whileTap={{ scale: 0.97 }}
                             onClick={(e) => {
@@ -101,7 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Info */}
             <div className="mt-4 flex flex-col gap-1 px-0.5">
                 {category && (
-                    <span className="text-[11px] font-semibold text-primary-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-semibold text-primary-400 uppercase tracking-[0.12em]">
                         {category}
                     </span>
                 )}
@@ -110,15 +109,30 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                         {name}
                     </h3>
                 </Link>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-base font-bold text-neutral-900">
-                        ${price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                    </span>
-                    {compare_price && compare_price > price && (
-                        <span className="text-sm text-neutral-400 line-through">
-                            ${compare_price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-base font-bold text-neutral-900">
+                            ${price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                         </span>
-                    )}
+                        {compare_price && compare_price > price && (
+                            <span className="text-sm text-neutral-400 line-through">
+                                ${compare_price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                            </span>
+                        )}
+                    </div>
+                    {/* Mobile-only cart button */}
+                    <motion.button
+                        whileTap={{ scale: 0.82 }}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onAddToCart();
+                        }}
+                        className="sm:hidden w-8 h-8 rounded-full bg-primary-500 hover:bg-primary-600 flex items-center justify-center text-white shadow-sm transition-colors"
+                        aria-label="Agregar al carrito"
+                    >
+                        <ShoppingBag className="h-3.5 w-3.5" />
+                    </motion.button>
                 </div>
             </div>
         </div>

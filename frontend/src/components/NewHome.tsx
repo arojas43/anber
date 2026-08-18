@@ -6,7 +6,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { motion, useInView } from 'framer-motion';
-import { Sparkles, ShieldCheck, Truck, RefreshCw, ArrowRight, Star, Quote } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, RefreshCw, ArrowRight, Star } from 'lucide-react';
 import Carousel from './Carousel';
 import { BACKEND_URL } from '@/config';
 
@@ -38,7 +38,7 @@ const FALLBACK_SLIDES = [
 ];
 
 const defaultTestimonials = [
-    { name: 'Sofía Martínez', text: 'La calidad es increíble. Cada pieza es elegante y cómoda.', rating: 5, image: 'https://i.pravatar.cc/150?img=5' },
+    { name: 'Sofía Martínez', text: 'La calidad es increíble. Cada pieza es elegante y cómoda, superó todas mis expectativas.', rating: 5, image: 'https://i.pravatar.cc/150?img=5' },
     { name: 'Valentina Rodríguez', text: 'El envío fue rápido y el empaque es hermoso. Totalmente recomendado.', rating: 5, image: 'https://i.pravatar.cc/150?img=9' },
     { name: 'Camila González', text: 'Mi tienda favorita para lencería. Diseños únicos y atemporales.', rating: 5, image: 'https://i.pravatar.cc/150?img=10' },
 ];
@@ -49,9 +49,9 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
     return (
         <motion.div
             ref={ref}
-            initial={{ opacity: 0, y: 32 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.65, delay, ease: "easeOut" }}
+            transition={{ duration: 0.75, delay, ease: [0.22, 1, 0.36, 1] }}
             className={className}
         >
             {children}
@@ -83,7 +83,6 @@ const NewHome: React.FC = () => {
                     const prods = data.products || [];
                     setFeaturedProducts(prods.slice(0, 4));
 
-                    // Build carousel from first 3 featured products that have images
                     const slideCandidates = prods.filter((p: any) => p.image_url).slice(0, 3);
                     if (slideCandidates.length > 0) {
                         const SLIDE_COPY = [
@@ -146,22 +145,26 @@ const NewHome: React.FC = () => {
 
             {/* Features Strip */}
             <section className="bg-white border-b border-neutral-100">
-                <div className="max-w-6xl mx-auto px-6 py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="max-w-6xl mx-auto px-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
                         {[
                             { icon: Truck, title: 'Envío Gratis', desc: 'En compras superiores a $999 MXN' },
                             { icon: ShieldCheck, title: 'Pago Seguro', desc: 'Protección total en tus transacciones' },
                             { icon: RefreshCw, title: 'Devoluciones Fáciles', desc: '30 días para cambios sin preguntas' },
                         ].map((feature, idx) => (
-                            <FadeIn key={idx} delay={idx * 0.1}>
-                                <div className="flex items-start gap-4">
-                                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-600">
-                                        <feature.icon className="h-6 w-6" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-neutral-900 mb-1">{feature.title}</h3>
-                                        <p className="text-sm text-neutral-500 leading-relaxed">{feature.desc}</p>
-                                    </div>
+                            <FadeIn
+                                key={idx}
+                                delay={idx * 0.08}
+                                className={`flex items-center gap-4 py-8 ${
+                                    idx === 0 ? 'md:pr-10' : idx === 1 ? 'md:px-10' : 'md:pl-10'
+                                }`}
+                            >
+                                <div className="flex-shrink-0 w-11 h-11 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-500">
+                                    <feature.icon className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold text-neutral-900 text-sm">{feature.title}</p>
+                                    <p className="text-sm text-neutral-400 mt-0.5 leading-relaxed">{feature.desc}</p>
                                 </div>
                             </FadeIn>
                         ))}
@@ -175,16 +178,17 @@ const NewHome: React.FC = () => {
                     <div className="max-w-7xl mx-auto px-6">
                         <FadeIn className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-14 gap-6">
                             <div>
-                                <p className="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Lo Más Amado</p>
+                                <p className="text-xs font-semibold text-primary-400 uppercase tracking-[0.18em] mb-3">Lo Más Amado</p>
                                 <h2 className="text-4xl md:text-5xl font-bold font-serif text-neutral-900 leading-tight">
-                                    Productos <span className="italic text-primary-500">Destacados</span>
+                                    Productos <em className="not-italic text-primary-500">Destacados</em>
                                 </h2>
                             </div>
-                            <Link to="/products" className="flex-shrink-0">
-                                <Button variant="outline" className="rounded-full border-neutral-300 text-neutral-700 hover:border-primary-400 hover:text-primary-600 gap-2">
-                                    Ver todo
-                                    <ArrowRight className="h-4 w-4" />
-                                </Button>
+                            <Link
+                                to="/products"
+                                className="flex-shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-primary-600 transition-colors group"
+                            >
+                                Ver toda la colección
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                             </Link>
                         </FadeIn>
 
@@ -209,20 +213,20 @@ const NewHome: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <FadeIn>
                             <div className="space-y-7">
-                                <div className="flex items-center gap-2 text-primary-600">
+                                <div className="flex items-center gap-2 text-primary-500">
                                     <Sparkles className="h-4 w-4" />
-                                    <span className="text-sm font-semibold uppercase tracking-widest">
+                                    <span className="text-xs font-semibold uppercase tracking-[0.18em]">
                                         {aboutData?.title || 'Nuestra Historia'}
                                     </span>
                                 </div>
                                 <h2 className="text-4xl md:text-5xl font-bold font-serif text-neutral-900 leading-tight">
                                     {aboutData?.subtitle || 'Elegancia que Empodera'}
                                 </h2>
-                                <p className="text-lg text-neutral-600 leading-relaxed">
-                                    {aboutData?.text || 'Desde 2020, nos dedicamos a ofrecer lencería de la más alta calidad, combinando elegancia, comodidad y estilo.'}
+                                <p className="text-lg text-neutral-500 leading-relaxed max-w-[52ch]">
+                                    {aboutData?.text || 'Desde 2020, nos dedicamos a ofrecer lencería de la más alta calidad, combinando elegancia, comodidad y estilo en cada pieza.'}
                                 </p>
                                 <Link to="/about">
-                                    <Button variant="outline" className="rounded-full border-2 border-primary-300 text-primary-700 hover:bg-primary-50 gap-2 mt-2">
+                                    <Button variant="outline" className="rounded-full border-2 border-primary-200 text-primary-700 hover:bg-primary-50 hover:border-primary-300 gap-2">
                                         Conoce Nuestra Historia
                                         <ArrowRight className="h-4 w-4" />
                                     </Button>
@@ -232,91 +236,171 @@ const NewHome: React.FC = () => {
 
                         <FadeIn delay={0.15}>
                             <div className="relative">
-                                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
+                                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-neutral-300/40">
                                     <img
                                         src={aboutData?.image || 'https://images.unsplash.com/photo-1583208205675-c9d5382e1d68?q=80&w=800&auto=format&fit=crop'}
                                         alt="Sobre Anber"
                                         className="w-full h-full object-cover"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-primary-900/20 to-transparent rounded-3xl" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/20 to-transparent" />
                                 </div>
-                                {/* Floating accent */}
-                                <div className="absolute -bottom-6 -left-6 w-36 h-36 rounded-2xl bg-primary-100 -z-10" />
-                                <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-accent-100 -z-10" />
+                                {/* Floating stat badge */}
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.88 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: 0.45, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                                    className="absolute -bottom-5 -left-5 hidden lg:flex items-center gap-3 bg-white rounded-2xl shadow-lg shadow-neutral-200/70 px-5 py-4 border border-neutral-100 z-10"
+                                >
+                                    <span className="text-2xl font-bold font-serif text-neutral-900 leading-none">4.9</span>
+                                    <div>
+                                        <div className="flex gap-0.5 mb-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star key={i} className="h-3 w-3 fill-primary-400 text-primary-400" />
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-neutral-400 leading-none">Calificación promedio</p>
+                                    </div>
+                                </motion.div>
+                                {/* Decorative shapes */}
+                                <div className="absolute -bottom-8 -left-8 w-40 h-40 rounded-3xl bg-primary-100 -z-10" />
+                                <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-secondary-100 -z-10" />
                             </div>
                         </FadeIn>
                     </div>
                 </div>
             </section>
 
-            {/* Testimonials */}
+            {/* Testimonials — asymmetric layout */}
             <section className="py-24 bg-neutral-50">
                 <div className="max-w-7xl mx-auto px-6">
-                    <FadeIn className="text-center mb-16">
-                        <p className="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Testimonios</p>
+                    <FadeIn className="mb-14">
+                        <p className="text-xs font-semibold text-primary-400 uppercase tracking-[0.18em] mb-3">Testimonios</p>
                         <h2 className="text-4xl md:text-5xl font-bold font-serif text-neutral-900">
-                            Lo Que Dicen Nuestras Clientas
+                            Lo Que Dicen<br className="hidden sm:block" /> Nuestras Clientas
                         </h2>
                     </FadeIn>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {testimonials.map((t, idx) => (
-                            <FadeIn key={idx} delay={idx * 0.1}>
-                                <div className="bg-white rounded-2xl p-8 shadow-sm border border-neutral-100 hover:shadow-md transition-shadow h-full flex flex-col">
-                                    <Quote className="h-7 w-7 text-primary-200 mb-5" />
-                                    <p className="text-neutral-700 leading-relaxed flex-1 mb-6 text-[15px]">
-                                        "{t.text}"
-                                    </p>
-                                    <div className="flex items-center gap-1 mb-5">
-                                        {[...Array(t.rating)].map((_, i) => (
-                                            <Star key={i} className="h-4 w-4 fill-primary-400 text-primary-400" />
-                                        ))}
+                    {testimonials.length >= 2 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-5 items-stretch">
+                            {/* Featured large card */}
+                            <FadeIn className="md:col-span-3" delay={0.05}>
+                                <div className="bg-neutral-900 rounded-3xl p-10 h-full flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex gap-1 mb-6">
+                                            {[...Array(testimonials[0]?.rating || 5)].map((_, i) => (
+                                                <Star key={i} className="h-4 w-4 fill-primary-400 text-primary-400" />
+                                            ))}
+                                        </div>
+                                        <p className="text-xl md:text-[1.35rem] font-serif text-white leading-relaxed">
+                                            "{testimonials[0]?.text}"
+                                        </p>
                                     </div>
-                                    <div className="flex items-center gap-3 pt-5 border-t border-neutral-100">
-                                        <img src={t.image} alt={t.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary-100" />
+                                    <div className="flex items-center gap-4 pt-8 mt-8 border-t border-white/10">
+                                        <img
+                                            src={testimonials[0]?.image}
+                                            alt={testimonials[0]?.name}
+                                            className="w-12 h-12 rounded-full object-cover ring-2 ring-primary-400/30"
+                                        />
                                         <div>
-                                            <p className="font-semibold text-neutral-900 text-sm">{t.name}</p>
-                                            <p className="text-xs text-neutral-400">Clienta Verificada</p>
+                                            <p className="font-semibold text-white">{testimonials[0]?.name}</p>
+                                            <p className="text-xs text-white/40 mt-0.5">Clienta Verificada</p>
                                         </div>
                                     </div>
                                 </div>
                             </FadeIn>
-                        ))}
-                    </div>
+
+                            {/* Two smaller cards stacked */}
+                            <div className="md:col-span-2 flex flex-col gap-5">
+                                {testimonials.slice(1, 3).map((t, i) => (
+                                    <FadeIn key={i} delay={0.12 + i * 0.08} className="flex-1">
+                                        <div className="bg-white rounded-3xl p-7 shadow-sm border border-neutral-100 h-full flex flex-col justify-between">
+                                            <div>
+                                                <div className="flex gap-0.5 mb-4">
+                                                    {[...Array(t.rating)].map((_, j) => (
+                                                        <Star key={j} className="h-3.5 w-3.5 fill-primary-400 text-primary-400" />
+                                                    ))}
+                                                </div>
+                                                <p className="text-[15px] text-neutral-700 leading-relaxed">"{t.text}"</p>
+                                            </div>
+                                            <div className="flex items-center gap-3 pt-5 mt-5 border-t border-neutral-100">
+                                                <img
+                                                    src={t.image}
+                                                    alt={t.name}
+                                                    className="w-9 h-9 rounded-full object-cover ring-2 ring-primary-100"
+                                                />
+                                                <div>
+                                                    <p className="font-semibold text-neutral-900 text-sm">{t.name}</p>
+                                                    <p className="text-xs text-neutral-400">Clienta Verificada</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </FadeIn>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="max-w-2xl">
+                            <FadeIn>
+                                <div className="bg-neutral-900 rounded-3xl p-10">
+                                    <div className="flex gap-1 mb-5">
+                                        {[...Array(testimonials[0]?.rating || 5)].map((_, i) => (
+                                            <Star key={i} className="h-4 w-4 fill-primary-400 text-primary-400" />
+                                        ))}
+                                    </div>
+                                    <p className="text-xl font-serif text-white leading-relaxed mb-8">
+                                        "{testimonials[0]?.text}"
+                                    </p>
+                                    <div className="flex items-center gap-4">
+                                        <img src={testimonials[0]?.image} alt={testimonials[0]?.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary-400/30" />
+                                        <p className="font-semibold text-white">{testimonials[0]?.name}</p>
+                                    </div>
+                                </div>
+                            </FadeIn>
+                        </div>
+                    )}
                 </div>
             </section>
 
-            {/* Newsletter */}
-            <section className="py-24 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}
-                />
-                <div className="max-w-2xl mx-auto px-6 text-center relative z-10">
-                    <FadeIn>
-                        <p className="text-sm font-semibold text-white/70 uppercase tracking-widest mb-4">Newsletter</p>
-                        <h2 className="text-4xl md:text-5xl font-bold font-serif text-white mb-5">
-                            Únete a Nuestra Comunidad
-                        </h2>
-                        <p className="text-lg text-white/80 mb-10 leading-relaxed">
-                            Recibe ofertas exclusivas y un <strong className="text-white">10% de descuento</strong> en tu primera compra.
-                        </p>
-                        <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                            <Input
-                                type="email"
-                                placeholder="Tu correo electrónico"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="flex-1 h-12 px-5 bg-white/15 border-white/30 text-white placeholder:text-white/50 rounded-full backdrop-blur-sm focus:ring-white/40 focus:border-white/60"
-                            />
-                            <Button
-                                type="submit"
-                                className="h-12 bg-white text-primary-600 hover:bg-neutral-100 font-semibold px-8 rounded-full whitespace-nowrap shadow-xl"
-                            >
-                                Suscribirme
-                            </Button>
-                        </form>
-                    </FadeIn>
+            {/* Newsletter — two-column, deep gradient */}
+            <section className="py-24 bg-gradient-to-br from-primary-900 to-primary-700 relative overflow-hidden">
+                <div className="absolute right-0 top-0 w-[480px] h-[480px] rounded-full bg-primary-600/25 -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+                <div className="absolute left-0 bottom-0 w-72 h-72 rounded-full bg-primary-900/40 translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+
+                <div className="max-w-6xl mx-auto px-6 relative z-10">
+                    <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
+                        <FadeIn>
+                            <p className="text-xs font-semibold text-primary-200 uppercase tracking-[0.18em] mb-5">Newsletter Exclusivo</p>
+                            <h2 className="text-4xl md:text-5xl font-bold font-serif text-white leading-tight mb-5">
+                                Únete a Nuestra Comunidad
+                            </h2>
+                            <p className="text-lg text-white/70 leading-relaxed">
+                                Recibe ofertas exclusivas y un{' '}
+                                <span className="text-white font-semibold">10% de descuento</span>{' '}
+                                en tu primera compra.
+                            </p>
+                        </FadeIn>
+
+                        <FadeIn delay={0.12}>
+                            <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                                <Input
+                                    type="email"
+                                    placeholder="Tu correo electrónico"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="h-12 px-5 bg-white/10 border-white/20 text-white placeholder:text-white/40 rounded-xl backdrop-blur-sm focus:ring-white/20 focus:border-white/40"
+                                />
+                                <Button
+                                    type="submit"
+                                    className="w-full h-12 bg-white text-primary-800 hover:bg-primary-50 font-semibold rounded-xl shadow-lg transition-colors"
+                                >
+                                    Suscribirme
+                                </Button>
+                                <p className="text-xs text-white/40 text-center">Sin spam. Cancela cuando quieras.</p>
+                            </form>
+                        </FadeIn>
+                    </div>
                 </div>
             </section>
         </div>

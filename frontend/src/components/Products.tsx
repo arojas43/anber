@@ -3,8 +3,8 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Sparkles } from 'lucide-react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Search } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductCard } from '@/components/ProductCard';
 import { BACKEND_URL } from '@/config';
@@ -27,14 +27,6 @@ interface Product {
   images?: string[];
   is_featured?: boolean;
 }
-
-const ICONS: Record<string, string> = {
-  'Brasieres': '👙',
-  'Conjuntos Íntimos': '💕',
-  'Lencería Especial': '✨',
-  'Pijamas & Loungewear': '🌙',
-  'Ropa Interior': '🎀',
-};
 
 const ProductsComponent: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -90,73 +82,103 @@ const ProductsComponent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
-          <p className="text-sm font-semibold text-primary-500 uppercase tracking-widest mb-3">Anber Lencería</p>
+    <div className="min-h-screen bg-neutral-50">
+      {/* Page Hero Strip */}
+      <div className="bg-primary-50 border-b border-primary-100">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center"
+        >
+          <p className="text-xs font-semibold text-primary-400 uppercase tracking-[0.2em] mb-4">Anber Lencería</p>
           <h1 className="text-5xl md:text-6xl font-bold font-serif text-neutral-900 mb-4">
-            Nuestra <span className="italic text-primary-500">Colección</span>
+            Nuestra <em className="not-italic text-primary-500">Colección</em>
           </h1>
-          <p className="text-lg text-neutral-500 max-w-xl mx-auto">
+          <p className="text-base text-neutral-500 max-w-md mx-auto leading-relaxed">
             Piezas únicas diseñadas para realzar tu belleza natural
           </p>
         </motion.div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
         {/* Search */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="max-w-2xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-xl mx-auto mb-8"
+        >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <Input
               placeholder="Buscar productos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 h-13 bg-white border-neutral-200 rounded-full text-base shadow-sm focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+              className="pl-11 h-12 bg-white border-neutral-200 rounded-full text-sm shadow-sm focus:border-primary-300 focus:ring-2 focus:ring-primary-100"
             />
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-sm">
-                ✕
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-lg leading-none"
+              >
+                ×
               </button>
             )}
           </div>
         </motion.div>
 
         {/* Category Pills */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-wrap justify-center gap-2 mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-wrap justify-center gap-2 mb-10"
+        >
           <button
             onClick={() => setSelectedCategoryId(null)}
-            className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${selectedCategoryId === null
-              ? 'bg-neutral-900 text-white shadow-md'
-              : 'bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400'}`}
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              selectedCategoryId === null
+                ? 'bg-neutral-900 text-white shadow-sm'
+                : 'bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900'
+            }`}
           >
-            <span className="mr-1.5">✨</span> Todo
+            Todo
           </button>
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${selectedCategoryId === cat.id
-                ? 'bg-primary-500 text-white shadow-md shadow-primary-500/25'
-                : 'bg-white border border-neutral-200 text-neutral-600 hover:border-primary-300 hover:text-primary-600'}`}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                selectedCategoryId === cat.id
+                  ? 'bg-neutral-900 text-white shadow-sm'
+                  : 'bg-white border border-neutral-200 text-neutral-600 hover:border-primary-300 hover:text-primary-600'
+              }`}
             >
-              <span className="mr-1.5">{ICONS[cat.name] || '🛍️'}</span>
               {cat.name}
             </button>
           ))}
         </motion.div>
 
-        {/* Results count */}
+        {/* Result count */}
         {!loading && (
-          <p className="text-sm text-neutral-400 mb-6 text-center">
-            {filtered.length} {filtered.length === 1 ? 'producto' : 'productos'} encontrados
+          <p className="text-xs text-neutral-400 mb-8 text-center tracking-wide">
+            {filtered.length} {filtered.length === 1 ? 'producto encontrado' : 'productos encontrados'}
           </p>
         )}
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-10">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl bg-neutral-200 animate-pulse aspect-[3/4]" />
+              <div key={i} className="flex flex-col">
+                <div className="rounded-2xl bg-neutral-200 animate-pulse aspect-[3/4]" />
+                <div className="mt-4 space-y-2.5">
+                  <div className="h-2.5 bg-neutral-200 rounded-full animate-pulse w-1/3" />
+                  <div className="h-3.5 bg-neutral-200 rounded-full animate-pulse w-4/5" />
+                  <div className="h-4 bg-neutral-200 rounded-full animate-pulse w-1/2" />
+                </div>
+              </div>
             ))}
           </div>
         ) : (
@@ -169,8 +191,8 @@ const ProductsComponent: React.FC = () => {
                     layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.4) }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3, delay: Math.min(idx * 0.04, 0.3) }}
                   >
                     <ProductCard
                       {...product}
@@ -182,10 +204,22 @@ const ProductsComponent: React.FC = () => {
                 ))}
               </motion.div>
             ) : (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
-                <Sparkles className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
-                <p className="text-neutral-500 text-lg mb-6">No encontramos productos con esos criterios</p>
-                <Button onClick={() => { setSearchTerm(''); setSelectedCategoryId(null); }} className="rounded-full bg-primary-500 hover:bg-primary-600 text-white px-8">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-28"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center mx-auto mb-5">
+                  <Search className="h-7 w-7 text-primary-300" />
+                </div>
+                <p className="text-neutral-700 text-lg font-medium mb-2">Sin resultados</p>
+                <p className="text-neutral-400 text-sm mb-8 max-w-xs mx-auto">
+                  No encontramos productos con esos criterios. Intenta con otra búsqueda.
+                </p>
+                <Button
+                  onClick={() => { setSearchTerm(''); setSelectedCategoryId(null); }}
+                  className="rounded-full bg-primary-500 hover:bg-primary-600 text-white px-8 h-11 shadow-sm"
+                >
                   Ver todos los productos
                 </Button>
               </motion.div>
