@@ -4,6 +4,7 @@ from app import db
 from app.models import Order, OrderItem, User, Product
 from app.routes import products_bp
 import uuid
+import json
 from datetime import datetime
 
 @products_bp.route('/cart/add', methods=['POST'])
@@ -76,8 +77,8 @@ def checkout():
         subtotal=subtotal,
         tax=tax,
         total=total,
-        shipping_address=data['shipping_address'],
-        billing_address=data.get('billing_address', data['shipping_address']),
+        shipping_address=json.dumps(data['shipping_address']),
+        billing_address=json.dumps(data.get('billing_address', data['shipping_address'])),
         notes=data.get('notes', ''),
         status='confirmed'
     )
